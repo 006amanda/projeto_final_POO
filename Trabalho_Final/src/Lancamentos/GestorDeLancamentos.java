@@ -6,7 +6,9 @@ public class GestorDeLancamentos {
     public void adicionarLancamento(LancamentosFinanceiros lancamento) {
         lancamentos.add(lancamento);
     }
+
     public List<LancamentosFinanceiros> listarLancamentos() {
         return lancamentos;
     }
+
 }

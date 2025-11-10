@@ -1,4 +1,6 @@
 package Persistencia;
 
-public class PersistenciaDados {
+public abstract class PersistenciaDados {
+    public abstract void salvar();
+    public abstract void carregar();
 }
