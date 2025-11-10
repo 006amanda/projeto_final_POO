@@ -18,7 +18,7 @@ public class MenuPrincipal {
         int opc = 0;
 
         while(opc != 7){
-            System.out.println("SISTEMA FINANCEIRO: ");
+            System.out.println("SISTEMA FINANCEIRO");
             System.out.println("1 - Usuários");
             System.out.println("2 - Contas");
             System.out.println("3 - Lançamentos");
