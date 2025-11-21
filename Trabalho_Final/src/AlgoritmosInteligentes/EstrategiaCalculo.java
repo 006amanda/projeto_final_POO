@@ -1,5 +1,8 @@
 package AlgoritmosInteligentes;
 
+import java.util.*;
+import Lancamentos.LancamentosFinanceiros;
+
 public interface EstrategiaCalculo {
-    double executar(double valor);
+    double calcular(List<LancamentosFinanceiros> lancamentos);
 }
