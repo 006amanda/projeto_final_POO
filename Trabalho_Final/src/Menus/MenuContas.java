@@ -21,26 +21,35 @@ public class MenuContas {
             System.out.println("6 - Excluir Conta");
             System.out.println("7 - Voltar");
             System.out.print("Escolha uma opção: ");
-            op = sc.nextInt();
+
+            try { op = Integer.parseInt(sc.nextLine()); }
+            catch (Exception e) { op = 0; }
+
             System.out.println();
-            sc.nextLine();
 
             if (op == 1) {
                 criarConta(sc);
-            } else if (op == 2) {
+            }
+            else if (op == 2) {
                 listarContas();
-            } else if (op == 3) {
+            }
+            else if (op == 3) {
                 operarDeposito(sc);
-            } else if (op == 4) {
+            }
+            else if (op == 4) {
                 operarSaque(sc);
-            } else if (op == 5) {
+            }
+            else if (op == 5) {
                 operarTransferencia(sc);
-            } else if (op == 6) {
+            }
+            else if (op == 6) {
                 excluirConta(sc);
-            } else if (op == 7) {
+            }
+            else if (op == 7) {
                 System.out.println("Voltando ao menu principal...");
                 break;
-            } else {
+            }
+            else {
                 System.out.println("Opção inválida!");
             }
         }
@@ -49,13 +58,18 @@ public class MenuContas {
     private static void criarConta(Scanner sc) {
         Usuario executor = selecionarUsuarioExecutor(sc);
         if (executor == null) return;
-        Usuario titular = selecionarUsuarioExecutor(sc);
+
+        Usuario titular = selecionarTitular(sc);
         if (titular == null) return;
+
         if (!titular.podeGerenciar(executor)) return;
+
         System.out.print("Digite o tipo da conta: ");
         String tipo = sc.nextLine();
+
         ContaFinanceira conta = ContaFactory.criarConta(tipo, titular);
         if (conta == null) return;
+
         titular.adicionarConta(conta);
         conta.exibirInformacoes();
     }
@@ -63,32 +77,34 @@ public class MenuContas {
     private static void listarContas() {
         for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
             System.out.println("Usuário: " + u.getNome() + " (ID = " + u.getId() + ")");
-            for (Object o : u.getContas()) {
-                if (o instanceof ContaFinanceira) {
+            for (Object o : u.getContas())
+                if (o instanceof ContaFinanceira)
                     ((ContaFinanceira) o).exibirInformacoes();
-                }
-            }
         }
 
         for (Grupo g : MenuUsuarios.grupos) {
             System.out.println("Grupo: " + g.getTipoGrupo() + " (Admin = " + g.getResponsavel().getNome() + ")");
-            for (Object o : g.getContas()) {
-                if (o instanceof ContaFinanceira) {
+            for (Object o : g.getContas())
+                if (o instanceof ContaFinanceira)
                     ((ContaFinanceira) o).exibirInformacoes();
-                }
-            }
         }
     }
 
     private static void operarDeposito(Scanner sc) {
         Usuario executor = selecionarUsuarioExecutor(sc);
         if (executor == null) return;
+
         ContaFinanceira destino = selecionarContaGlobal(sc);
         if (destino == null) return;
+
         System.out.print("Valor a depositar: R$");
         double valor;
-        try { valor = Double.parseDouble(sc.nextLine()); } catch (Exception e) { return; }
+
+        try { valor = Double.parseDouble(sc.nextLine()); }
+        catch (Exception e) { return; }
+
         if (valor <= 0) return;
+
         destino.depositar(valor);
         registrarDeposito(destino, valor);
         destino.exibirInformacoes();
@@ -97,21 +113,29 @@ public class MenuContas {
     private static void operarSaque(Scanner sc) {
         Usuario executor = selecionarUsuarioExecutor(sc);
         if (executor == null) return;
+
         ContaFinanceira conta = selecionarContaGlobal(sc);
         if (conta == null) return;
+
         Usuario titular = obterTitularDaConta(conta);
         if (titular == null) return;
+
         if (!titular.podeGerenciar(executor)) return;
+
         System.out.print("Valor a sacar: R$");
         double valor;
-        try { valor = Double.parseDouble(sc.nextLine()); } catch (Exception e) { return; }
+
+        try { valor = Double.parseDouble(sc.nextLine()); }
+        catch (Exception e) { return; }
+
         if (valor <= 0) return;
 
         try {
             conta.sacar(valor);
             registrarSaque(conta, titular, valor);
             conta.exibirInformacoes();
-        } catch (SaldoInsuficienteException e) {
+        }
+        catch (SaldoInsuficienteException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -119,19 +143,24 @@ public class MenuContas {
     private static void operarTransferencia(Scanner sc) {
         Usuario executor = selecionarUsuarioExecutor(sc);
         if (executor == null) return;
+
         ContaFinanceira origem = selecionarContaGlobal(sc);
         if (origem == null) return;
 
         Usuario titularOrigem = obterTitularDaConta(origem);
         if (titularOrigem == null) return;
+
         if (!titularOrigem.podeGerenciar(executor)) return;
 
         ContaFinanceira destino = selecionarContaGlobal(sc);
         if (destino == null) return;
 
-        System.out.print("Valor a transferir: R$");
+        System.out.print("Valor da transferência: R$");
         double valor;
-        try { valor = Double.parseDouble(sc.nextLine()); } catch (Exception e) { return; }
+
+        try { valor = Double.parseDouble(sc.nextLine()); }
+        catch (Exception e) { return; }
+
         if (valor <= 0) return;
 
         try {
@@ -139,7 +168,8 @@ public class MenuContas {
             registrarTransferencia(origem, destino, titularOrigem, valor);
             origem.exibirInformacoes();
             destino.exibirInformacoes();
-        } catch (SaldoInsuficienteException e) {
+        }
+        catch (SaldoInsuficienteException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -154,13 +184,9 @@ public class MenuContas {
         Usuario titular = obterTitularDaConta(conta);
         if (titular == null) return;
 
-        if (!titular.podeGerenciar(executor)) {
-            System.out.println("Você não tem permissão para excluir esta conta.");
-            return;
-        }
+        if (!titular.podeGerenciar(executor)) return;
 
         titular.getContas().remove(conta);
-
         registrarExclusaoConta(titular);
 
         System.out.println("Conta excluída com sucesso.");
@@ -219,73 +245,90 @@ public class MenuContas {
     }
 
     private static ContaFinanceira selecionarContaGlobal(Scanner sc) {
-        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
-            for (Object o : u.getContas()) {
-                if (o instanceof ContaFinanceira) ((ContaFinanceira) o).exibirInformacoes();
-            }
-        }
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
+            for (Object o : u.getContas())
+                if (o instanceof ContaFinanceira)
+                    ((ContaFinanceira) o).exibirInformacoes();
 
-        for (Grupo g : MenuUsuarios.grupos) {
-            for (Object o : g.getContas()) {
-                if (o instanceof ContaFinanceira) ((ContaFinanceira) o).exibirInformacoes();
-            }
-        }
+        for (Grupo g : MenuUsuarios.grupos)
+            for (Object o : g.getContas())
+                if (o instanceof ContaFinanceira)
+                    ((ContaFinanceira) o).exibirInformacoes();
 
         System.out.print("Número da conta: ");
         int numero;
-        try { numero = Integer.parseInt(sc.nextLine()); } catch (Exception e) { return null; }
 
-        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
+        try { numero = Integer.parseInt(sc.nextLine()); }
+        catch (Exception e) { return null; }
+
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
             for (Object o : u.getContas()) {
                 ContaFinanceira c = (ContaFinanceira) o;
                 if (c.getNumeroConta() == numero) return c;
             }
-        }
 
-        for (Grupo g : MenuUsuarios.grupos) {
+        for (Grupo g : MenuUsuarios.grupos)
             for (Object o : g.getContas()) {
                 ContaFinanceira c = (ContaFinanceira) o;
                 if (c.getNumeroConta() == numero) return c;
             }
-        }
 
         return null;
     }
 
     private static Usuario obterTitularDaConta(ContaFinanceira conta) {
-        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
             for (Object o : u.getContas()) {
                 ContaFinanceira c = (ContaFinanceira) o;
                 if (c.getNumeroConta() == conta.getNumeroConta()) return u;
             }
-        }
 
-        for (Grupo g : MenuUsuarios.grupos) {
+        for (Grupo g : MenuUsuarios.grupos)
             for (Object o : g.getContas()) {
                 ContaFinanceira c = (ContaFinanceira) o;
                 if (c.getNumeroConta() == conta.getNumeroConta()) return g;
             }
-        }
+
         return null;
     }
 
     private static Usuario selecionarUsuarioExecutor(Scanner sc) {
         System.out.println("USUÁRIOS DISPONÍVEIS:");
-        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
+
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
             System.out.println("ID = " + u.getId() + " | Nome = " + u.getNome());
-        }
-        for (Grupo g : MenuUsuarios.grupos) {
-            System.out.println("ID = " + g.getId() + " | GRUPO = " + g.getTipoGrupo());
-        }
+
+        for (Grupo g : MenuUsuarios.grupos)
+            System.out.println("ID = " + g.getId() + " | Grupo = " + g.getTipoGrupo());
+
         System.out.print("ID do executor: ");
         int id;
-        try { id = Integer.parseInt(sc.nextLine()); } catch (Exception e) { return null; }
-        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais) {
+
+        try { id = Integer.parseInt(sc.nextLine()); }
+        catch (Exception e) { return null; }
+
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
             if (u.getId() == id) return u;
-        }
-        for (Grupo g : MenuUsuarios.grupos) {
+
+        for (Grupo g : MenuUsuarios.grupos)
             if (g.getId() == id) return g;
-        }
+
+        return null;
+    }
+
+    private static Usuario selecionarTitular(Scanner sc) {
+        System.out.print("ID do titular: ");
+        int id;
+
+        try { id = Integer.parseInt(sc.nextLine()); }
+        catch (Exception e) { return null; }
+
+        for (UsuarioIndividual u : MenuUsuarios.usuariosIndividuais)
+            if (u.getId() == id) return u;
+
+        for (Grupo g : MenuUsuarios.grupos)
+            if (g.getId() == id) return g;
+
         return null;
     }
 }
