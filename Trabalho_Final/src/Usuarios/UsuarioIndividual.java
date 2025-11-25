@@ -40,6 +40,6 @@ public class UsuarioIndividual extends Usuario {
 
     @Override
     public String toString() {
-        return "Usuário individual ID = " + id + " | Nome = " + nome + " | CPF = " + cpf + " | Ocupação = " + ocupacao + " | Estado Civil = " + estadoCivil;
+        return "Usuário individual: ID = " + id + " | Nome = " + nome + " | CPF = " + cpf + " | Ocupação = " + ocupacao + " | Estado Civil = " + estadoCivil;
     }
 }

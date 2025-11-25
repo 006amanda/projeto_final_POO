@@ -88,7 +88,7 @@ public abstract class Usuario {
 
     @Override
     public String toString() {
-        return STR."Usuario: ID=\{id} | Nome=\{nome} | CPF=\{cpf} | Email=\{email}";
+        return STR."Usuario: ID = \{id} | Nome = \{nome} | CPF = \{cpf} | Email = \{email}";
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Grupo extends Usuario {
     protected List<UsuarioIndividual> membros;
-    protected UsuarioIndividual responsavel;
+    protected int responsavelId;
     protected String tipoGrupo;
 
     public Grupo(UsuarioIndividual responsavel, String tipoGrupo) {
@@ -12,7 +12,7 @@ public class Grupo extends Usuario {
                 responsavel.getEmail(), responsavel.getContato());
         this.tipoGrupo = tipoGrupo;
         this.membros = new ArrayList<>();
-        this.responsavel = responsavel;
+        this.responsavelId = responsavel.getId();
         this.membros.add(responsavel);
     }
 
@@ -21,17 +21,20 @@ public class Grupo extends Usuario {
     }
 
     public UsuarioIndividual getResponsavel() {
-        return responsavel;
+        for (UsuarioIndividual u : membros) {
+            if (u.getId() == responsavelId) return u;
+        }
+        return null;
     }
 
     public void setResponsavel(UsuarioIndividual novoResp) {
-        if (novoResp == null)
-            return;
+        if (novoResp == null) return;
 
         if (!membros.contains(novoResp)) {
             membros.add(novoResp);
         }
-        this.responsavel = novoResp;
+        this.responsavelId = novoResp.getId();
+
         this.nome = novoResp.getNome();
         this.cpf = novoResp.getCpf();
         this.email = novoResp.getEmail();
@@ -51,13 +54,13 @@ public class Grupo extends Usuario {
     public boolean removerMembro(UsuarioIndividual u, Usuario requester) {
         if (!podeGerenciar(requester)) return false;
         if (u == null) return false;
-        if (u.equals(responsavel)) return false;
+        if (u.getId() == responsavelId) return false;
         return membros.remove(u);
     }
 
     public boolean isMembro(Usuario u) {
-        if (!(u instanceof UsuarioIndividual)) return false;
-        return membros.contains((UsuarioIndividual) u);
+        if (!(u instanceof UsuarioIndividual ui)) return false;
+        return membros.contains(ui);
     }
 
     public String getTipoGrupo() {
@@ -70,26 +73,19 @@ public class Grupo extends Usuario {
 
     @Override
     public boolean podeVisualizar(Usuario requester) {
-        if (requester == null)
-            return false;
-
-        if (requester.getId() == this.responsavel.getId()) return true;
-
-        for (UsuarioIndividual m : membros) {
-            if (m.getId() == requester.getId()) return true;
-        }
-
-        return false;
+        if (requester == null) return false;
+        if (requester.getId() == responsavelId) return true;
+        return isMembro(requester);
     }
 
     @Override
     public boolean podeGerenciar(Usuario requester) {
-        if (requester == null) return false;
-        return requester.getId() == this.responsavel.getId();
+        return requester != null && requester.getId() == this.responsavelId;
     }
 
     @Override
     public String toString() {
-        return "Grupo ID = " + id + " | Tipo = " + tipoGrupo + " | Admin = " + responsavel.getNome() + " | Membros = " + membros.size();
+        UsuarioIndividual admin = getResponsavel();
+        return "Grupo ID = " + id + " | Tipo = " + tipoGrupo + " | Admin = " + (admin != null ? admin.getNome() : "N/A") + " | Membros = " + membros.size();
     }
 }
